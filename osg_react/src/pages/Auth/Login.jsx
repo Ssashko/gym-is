@@ -1,14 +1,15 @@
 import { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 
 import HeaderAuth from '../../components/HeaderAuth';
-import axios from '../../api/axios.js';
 import useAuth from '../../hooks/useAuth';
-const LOGIN_URL = '/user/api/token/';
 
 const Login = () => {
-	const { auth, setAuth } = useAuth();
+	const location = useLocation();
+	const from = location.state?.from?.pathname || '/';
+
+	const { user, logInUser } = useAuth();
 	const [authError, setAuthError] = useState(null);
 	const {
 		register,
@@ -25,34 +26,21 @@ const Login = () => {
 	});
 
 	const onSubmit = async (values) => {
-		try {
-			const response = await axios.post(LOGIN_URL, {
-				email: values.email,
-				password: values.password,
-			});
-
-			if (response.status !== 200) {
-				return alert('Login failed');
-			}
-
-			const accessToken = response?.data?.access;
-			const refreshToken = response?.data?.refresh;
-
-			setAuth({ accessToken, refreshToken });
-		} catch (err) {
-			if (!err?.response) {
+		const error = await logInUser(values);
+		if (error) {
+			if (!error.response) {
 				setAuthError('Сервер не віподвідає');
 			} else {
 				setAuthError('Невірні вхідні дані');
 			}
 			setError('email', {}, { shouldFocus: true });
 			setError('password');
-			console.error(err);
+			console.error(error);
 		}
 	};
 
-	if (auth) {
-		return <Navigate to={'/profile'} replace />;
+	if (user) {
+		return <Navigate to={from} replace />;
 	}
 
 	return (
