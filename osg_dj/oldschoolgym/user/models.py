@@ -1,12 +1,43 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django_resized import ResizedImageField
-from .manager import MyUserManager
+from .utils import generate_confirmation_code
 
 ROLES = (
     (0, 'customer'),
     (1, 'coach')
 )
+
+GENDERS = (
+    ('M', 'male'),
+    ('F', 'female')
+)
+
+
+class MyUserManager(BaseUserManager):
+    def create_verifying(self):
+        user_verification = UserVerification()
+        user_verification.save(self._db)
+        return user_verification
+
+    def create_user(self, email, password, **extra_fields):
+        if not email or not password:
+            raise ValueError('User must have email and password!')
+        user = self.model(email=self.normalize_email(email), **extra_fields)
+        user.verifying = self.create_verifying()
+        user.set_password(password)
+        user.save(self._db)
+        return user
+
+    def create_superuser(self, email, password, **extra_fields):
+        superuser = self.create_user(email=email, password=password,
+                                     is_staff=True, is_superuser=True, **extra_fields)
+        return superuser
+
+
+class UserVerification(models.Model):
+    code = models.CharField(max_length=6, default=generate_confirmation_code)
+    is_activate = models.BooleanField(default=False)
 
 
 def avatar_path(instance, filename):
@@ -28,7 +59,10 @@ class MyUser(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     role = models.IntegerField(choices=ROLES)
     avatar = ResizedImageField(upload_to=avatar_path, size=[512, 512], crop=[
-                               'middle', 'center'], keep_meta=False, force_format='PNG')
+                               'middle', 'center'], keep_meta=False, force_format='PNG')  # TODO: default value
+    gender = models.CharField(max_length=1, choices=GENDERS)
+    verifying = models.OneToOneField(
+        UserVerification, on_delete=models.CASCADE)
     objects = MyUserManager()
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

@@ -8,7 +8,7 @@ class MyUserSerializer(serializers.ModelSerializer):
         # fields = '__all__'
         exclude = ('user_permissions', 'groups')
         read_only_fields = ('created_at', 'is_superuser',
-                            'is_staff', 'last_login', 'groups', 'user_permissions')
+                            'is_staff', 'last_login', 'groups', 'user_permissions', 'verifying')
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -16,3 +16,7 @@ class MyUserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = MyUser.objects.create_user(**validated_data)
         return user
+
+
+class ConfirmMailSerializer(serializers.Serializer):
+    code = serializers.CharField(min_length=6, max_length=6)
