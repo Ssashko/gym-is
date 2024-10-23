@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 
 import Header from '../components/Header';
@@ -14,6 +14,12 @@ import {
 } from '@heroicons/react/24/outline';
 import useAxios from '../hooks/useAxios';
 import useAuth from '../hooks/useAuth';
+import Messages from '../components/Messages/Messages';
+import Chat from '../components/Messages/Chat';
+import { ChatProvider } from '../context/ChatProvider';
+import ProfileCoach from '../components/Profile/ProfileCoach';
+import Loading from '../components/Loading';
+import MissingPage from '../components/MissingPage';
 
 const navUser = [
 	{ name: 'Головна', icon: <HomeIcon />, href: '/cabinet' },
@@ -47,41 +53,52 @@ const navCoach = [
 ];
 
 const Cabinet = () => {
-	const { user } = useAuth();
+	const { user, setUser } = useAuth();
 	const api = useAxios();
+	const [user_profile, setUser_profile] = useState({});
+	const [isLoading, setLoading] = useState(true);
 
+	const getUser_profile = () => {
+		api.get('/user/api/get_user_by_id/', { params: { user_id: user.user_id } }).then((res) => {
+			setUser_profile(res.data);
+			setUser({ ...user, user_profile: res.data });
+			setLoading(false);
+			console.log(res.data);
+		});
+	};
 	useEffect(() => {
 		window.scrollTo(0, 0);
-		// getSome();
-	});
-	// const getSome = async () => {
-	// 	const response = await api
-	// 		.get('/chat/api/message/', { params: { id: 1 } })
-	// 		.then((res) => {
-	// 			console.log(res.data);
-	// 		})
-	// 		.catch((err) => {
-	// 			console.log(err);
-	// 		});
-	// };
+		getUser_profile();
+	}, []);
 	const currentNav = user.role === 0 ? navUser : navCoach;
 	return (
 		<div className="flex flex-col h-full ">
 			<Header />
-			<div className="flex flex-row h-screen pt-[60px]">
-				<SideBar navigation={currentNav} />
+			<div className="flex flex-row h-screen pt-[60px] max-xl:pt-[146px]">
+				<SideBar navigation={currentNav} avatar={user_profile.avatar} />
 				<main className="flex-1 h-full overflow-y-auto text-5xl p-7 ">
-					<Routes>
-						<Route path="/" element={<Home />} />
-						<Route path="/requests" element={<div>Requests</div>} />
-						<Route path="/messages" element={<div>Messages</div>} />
-						{user.role === 0 ? (
-							<Route path="/coaches" element={<div>Coaches</div>} />
-						) : (
-							<Route path="/clients" element={<div>Clients</div>} />
-						)}
-						<Route path="/calendar" element={<div>Calendar</div>} />
-					</Routes>
+					{isLoading ? (
+						<Loading />
+					) : (
+						<Routes>
+							<Route path="/" element={<Home />} />
+							<Route path="/profile" element={<ProfileCoach />} />
+							<Route path="/requests" element={<div>Requests</div>} />
+
+							<Route element={<ChatProvider />}>
+								<Route path="/messages" element={<Messages />} />
+								<Route path="/messages/:id" element={<Chat />} />
+							</Route>
+
+							{user.role === 0 ? (
+								<Route path="/coaches" element={<div>Coaches</div>} />
+							) : (
+								<Route path="/clients" element={<div>Clients</div>} />
+							)}
+							<Route path="/calendar" element={<div>Calendar</div>} />
+							<Route path="*" element={<MissingPage />} />
+						</Routes>
+					)}
 				</main>
 			</div>
 		</div>
