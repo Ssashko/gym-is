@@ -7,17 +7,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from drf_yasg.utils import swagger_auto_schema
 from .utils import get_header_params
-
-
-class TestMe(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, format=None):
-        return Response({'status': 200}, status=status.HTTP_200_OK)
+from .permissions import VerifiedUserOnly
 
 
 class UserAPI(APIView):
-    """API with user"""
 
     @swagger_auto_schema(operation_description="Get all users", responses={200: MyUserSerializer(many=True)})
     def get(self, request, format=None):
@@ -40,7 +33,7 @@ class UserAPI(APIView):
 @permission_classes([IsAuthenticated])
 def confirm_email(request):
     serialized_data = ConfirmMailSerializer(data=request.data)
-    if request.user.validation.is_active:
+    if request.user.verifying.is_activate:
         return Response('User email has already confirmed!', status.HTTP_409_CONFLICT)
     if serialized_data.is_valid():
         if request.user.verifying.code == serialized_data.data['code']:
