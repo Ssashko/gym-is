@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 import Header from '../components/Header';
 import SideBar from '../components/SideBar';
-import Home from '../components/Home/Home';
 
 import {
 	UsersIcon,
@@ -12,14 +11,18 @@ import {
 	ChatBubbleBottomCenterTextIcon,
 	CalendarIcon,
 } from '@heroicons/react/24/outline';
-import useAxios from '../hooks/useAxios';
 import useAuth from '../hooks/useAuth';
 import Messages from '../components/Messages/Messages';
 import Chat from '../components/Messages/Chat';
 import { ChatProvider } from '../context/ChatProvider';
-import ProfileCoach from '../components/Profile/ProfileCoach';
-import Loading from '../components/Loading';
 import MissingPage from '../components/MissingPage';
+import Profile from '../components/Profile/Profile';
+import Requests from '../components/Requests/Requests';
+import HomeCoach from '../components/Home/HomeCoach';
+import HomeUser from '../components/Home/HomeUser';
+import Coaches from '../components/UserList/Coaches';
+import Clients from '../components/UserList/Clients';
+import CalendarCoach from '../components/Calendar/CalendarCoach';
 
 const navUser = [
 	{ name: 'Головна', icon: <HomeIcon />, href: '/cabinet' },
@@ -53,52 +56,37 @@ const navCoach = [
 ];
 
 const Cabinet = () => {
-	const { user, setUser } = useAuth();
-	const api = useAxios();
-	const [user_profile, setUser_profile] = useState({});
-	const [isLoading, setLoading] = useState(true);
+	const { user } = useAuth();
 
-	const getUser_profile = () => {
-		api.get('/user/api/get_user_by_id/', { params: { user_id: user.user_id } }).then((res) => {
-			setUser_profile(res.data);
-			setUser({ ...user, user_profile: res.data });
-			setLoading(false);
-			console.log(res.data);
-		});
-	};
 	useEffect(() => {
 		window.scrollTo(0, 0);
-		getUser_profile();
 	}, []);
+
 	const currentNav = user.role === 0 ? navUser : navCoach;
 	return (
 		<div className="flex flex-col h-full ">
 			<Header />
-			<div className="flex flex-row h-screen pt-[60px] max-xl:pt-[146px]">
-				<SideBar navigation={currentNav} avatar={user_profile.avatar} />
-				<main className="flex-1 h-full overflow-y-auto text-5xl p-7 ">
-					{isLoading ? (
-						<Loading />
-					) : (
-						<Routes>
-							<Route path="/" element={<Home />} />
-							<Route path="/profile" element={<ProfileCoach />} />
-							<Route path="/requests" element={<div>Requests</div>} />
+			<div className="flex flex-row overflow-y-auto h-screen pt-[60px] max-xl:pt-[146px]">
+				<SideBar navigation={currentNav} avatar={user.user_profile.avatar} />
+				<main className="flex-1 h-full text-5xl p-7 ">
+					<Routes>
+						<Route path="/" element={user.role === 0 ? <HomeUser /> : <HomeCoach />} />
+						<Route path="/profile" element={<Profile />} />
+						<Route path="/requests" element={<Requests />} />
 
-							<Route element={<ChatProvider />}>
-								<Route path="/messages" element={<Messages />} />
-								<Route path="/messages/:id" element={<Chat />} />
-							</Route>
+						<Route element={<ChatProvider />}>
+							<Route path="/messages" element={<Messages />} />
+							<Route path="/messages/:id" element={<Chat />} />
+						</Route>
 
-							{user.role === 0 ? (
-								<Route path="/coaches" element={<div>Coaches</div>} />
-							) : (
-								<Route path="/clients" element={<div>Clients</div>} />
-							)}
-							<Route path="/calendar" element={<div>Calendar</div>} />
-							<Route path="*" element={<MissingPage />} />
-						</Routes>
-					)}
+						{user.role === 0 ? (
+							<Route path="/coaches" element={<Coaches />} />
+						) : (
+							<Route path="/clients" element={<Clients />} />
+						)}
+						<Route path="/calendar" element={<CalendarCoach />} />
+						<Route path="*" element={<MissingPage />} />
+					</Routes>
 				</main>
 			</div>
 		</div>
