@@ -1,9 +1,5 @@
-from user.models import MyUser
 from .models import Chat, Message
 from .serializers import MessageSerializer
-from user.serializers import MyUserSerializer
-from djangochannelsrestframework import mixins
-from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 from django.contrib.auth.models import AnonymousUser
@@ -21,7 +17,6 @@ class ChatConsumer(WebsocketConsumer):
         self.accept()
 
     def disconnect(self, close_code):
-        # Leave room group
         async_to_sync(self.channel_layer.group_discard)(
             self.room_group_name, self.channel_name
         )
@@ -53,9 +48,3 @@ class ChatConsumer(WebsocketConsumer):
                 dict_to_send
             )
         )
-
-
-class UserConsumer(mixins.ListModelMixin,
-                   GenericAsyncAPIConsumer):
-    queryset = MyUser.objects.all()
-    serializer_class = MyUserSerializer
