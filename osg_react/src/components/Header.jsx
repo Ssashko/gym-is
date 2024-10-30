@@ -1,40 +1,36 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import { UserIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, UserIcon } from '@heroicons/react/24/outline';
 
-// const navigation = [
-// 	{ name: 'Dashboard', href: '#', current: true },
-// 	{ name: 'Team', href: '#', current: false },
-// 	{ name: 'Projects', href: '#', current: false },
-// 	{ name: 'Calendar', href: '#', current: false },
-// ];
-
-// function classNames(...classes) {
-// 	return classes.filter(Boolean).join(' ');
-// }
-
-export default function Header({ main, full }) {
+export default function Header({ main, full, noFixed, openBurger }) {
 	const navMain =
-		'grid items-center justify-center grid-cols-3 col-span-2 text-2xl md:ml-auto md:mr-auto shrink max-2xl:text-xl';
+		'grid items-center justify-center grid-cols-2 sm:grid-cols-3 col-span-2 text-2xl md:ml-auto md:mr-auto shrink max-xl:text-lg';
 	const nav =
-		'flex flex-wrap items-center justify-center col-span-2 text-2xl md:ml-auto md:mr-auto shrink';
-	const headerContainer = 'flex flex-wrap items-center p-2 mx-auto max-xl:flex max-xl:flex-col';
+		'flex flex-wrap items-center justify-center col-span-2 text-2xl md:ml-auto md:mr-auto shrink max-xl:text-lg ';
+	const headerContainer =
+		'flex flex-wrap items-center p-2 mx-auto' + (!openBurger && ' max-lg:flex-col');
 	return (
-		<header className="fixed top-0 z-20 w-full text-white bg-black border-b-2 border-white body-font">
-			<div className={main && full ? headerContainer + ' container' : headerContainer}>
-				{/* <div className="container grid items-center grid-cols-4 p-2 mx-auto max-xl:flex max-xl:flex-col"> */}
-				{/* <div className="container flex flex-col flex-wrap items-center justify-between p-2 mx-auto md:flex-row "> */}
+		<header
+			className={
+				'top-0 z-20 w-full text-white bg-black border-b-2 border-white body-font' +
+				' ' +
+				(noFixed
+					? ''
+					: full
+					? 'lg:fixed lg:[&+*]:mt-[74px] lg:[&+*]:max-2xl:mt-[60px] lg:[&+*]:max-lg:mt-[116px] lg:[&+*]:max-xl:mt-[60px]'
+					: 'lg:fixed lg:[&+*]:mt-[74px] lg:[&+*]:max-2xl:mt-[52px] lg:[&+*]:max-xl:mt-[42px]')
+			}>
+			<div className={full ? headerContainer + ' container' : headerContainer}>
 				<Link to="/" className="flex items-center font-normal title-font md:mb-0">
 					<span
-						className="mr-1 -mb-1 text-5xl leading-none max-md:text-4xl"
+						className="mr-1 -mb-1 text-3xl leading-none 2xl:text-6xl md:text-4xl "
 						style={{ fontFamily: "'Stick No Bills', sans-serif" }}>
 						OLDSCHOOLGYM
 					</span>
 					<svg
-						width="74"
-						height="40"
-						viewBox="0 0 74 40"
+						className="md:w-[72px] md:h-[36px] w-[40px] h-[20px]"
+						viewBox="0 0 80 40"
 						fill="none"
 						xmlns="http://www.w3.org/2000/svg">
 						<g clipPath="url(#clip0_153_334)">
@@ -53,33 +49,47 @@ export default function Header({ main, full }) {
 						</defs>
 					</svg>
 				</Link>
-				{/* <nav className=> */}
-				<nav className={main ? navMain : nav}>
-					{main && (
-						<Link
-							to="/coaches"
-							className="px-7 max-2xl:px-4 py-1.5 flex align-center justify-center hover:text-gray-200 border-b-2 border-transparent hover:border-white transition ease-out delay-75">
-							Тренери
+				{full && (
+					<>
+						<nav className={main ? navMain : nav}>
+							{main && (
+								<Link
+									to="/coaches"
+									className="px-2 2xl:px-7 py-1.5 flex align-center justify-center hover:text-gray-200 border-b-2 border-transparent hover:border-white transition ease-out delay-75">
+									Тренери
+								</Link>
+							)}
+							<Link
+								to="/"
+								className="px-2 2xl:px-7 py-1.5 flex align-center justify-center hover:text-gray-200 border-b-2 border-transparent border-black hover:border-white transition ease-out delay-75">
+								Головна
+							</Link>
+							{main && (
+								<Link
+									to="/register"
+									className="px-2 2xl:px-7 py-1.5 max-sm:col-span-2 flex align-center justify-center hover:text-gray-200 border-b-2 border-transparent border-black hover:border-white transition ease-out delay-75">
+									Стати тренером
+								</Link>
+							)}
+						</nav>
+						<Link to="/cabinet">
+							<button className="p-1 align-middle rounded h-11 w-11 max-md:h-8 max-md:w-8 justify-self-end focus:outline-none hover:bg-gray-400">
+								<UserIcon className="" />
+							</button>
 						</Link>
-					)}
-					<Link
-						to="/"
-						className="px-7 max-2xl:px-4 py-1.5 flex align-center justify-center hover:text-gray-200 border-b-2 border-transparent border-black hover:border-white transition ease-out delay-75">
-						Головна
-					</Link>
-					{main && (
-						<Link
-							to="/register"
-							className="px-7 max-2xl:px-4 py-1.5 flex align-center justify-center hover:text-gray-200 border-b-2 border-transparent border-black hover:border-white transition ease-out delay-75">
-							Стати тренером
-						</Link>
-					)}
-				</nav>
-				<Link to="/profile/">
-					<button className="p-1 align-middle rounded h-11 w-11 max-md:h-8 max-md:w-8 justify-self-end focus:outline-none hover:bg-gray-400">
-						<UserIcon className="" />
-					</button>
-				</Link>
+					</>
+				)}
+				{openBurger && (
+					<>
+						<div className="flex-1"></div>
+						<button
+							type="button"
+							onClick={openBurger}
+							className="align-middle rounded sm:hidden justify-self-end focus:outline-none hover:bg-gray-400">
+							<Bars3Icon className="w-6 h-6" />
+						</button>
+					</>
+				)}
 			</div>
 		</header>
 	);

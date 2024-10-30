@@ -1,12 +1,17 @@
-import React from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { Link, Navigate } from 'react-router-dom';
+
 import HeaderAuth from '../../components/HeaderAuth';
+import useAuth from '../../hooks/useAuth';
 
 const Register = () => {
+	const { auth, registerUser, logInUser } = useAuth();
+	const [authError, setAuthError] = useState(null);
+
 	const {
 		register,
 		handleSubmit,
-		// setError,
 		// eslint-disable-next-line
 		formState: { errors, isValid },
 	} = useForm({
@@ -19,36 +24,42 @@ const Register = () => {
 			password: '',
 		},
 		mode: 'onChange',
-		// shouldUseNativeValidation: true,
 	});
 
 	const onSubmit = async (values) => {
-		console.log(values);
-		// const data = await fetchRegister(values);
+		const errorRegister = await registerUser({ ...values, bday: '17-04-2023' });
+		if (errorRegister) {
+			if (!errorRegister.response) {
+				setAuthError('Сервер не віподвідає');
+			} else {
+				setAuthError('Помилка реєстрації');
+			}
+			console.error(errorRegister);
+			return;
+		}
 
-		// if (!data.payload) {
-		// 	return alert('Registration failed');
-		// }
-
-		// if ('token' in data.payload) {
-		// 	localStorage.setItem('token', data.payload.token);
-		// }
+		const errorLogin = await logInUser(values);
+		if (errorLogin) {
+			if (!errorLogin.response) {
+				setAuthError('Сервер не віподвідає');
+			} else {
+				setAuthError('Невірні вхідні дані');
+			}
+			console.error(errorLogin);
+		}
 	};
 
-	// const handleSubmit = (event) => {
-	// 	console.log(event);
-	// 	event.preventDefault();
-	// };
-	// if (isAuth) {
-	// 	return <Navigate to={'/'} />;
-	// }
+	if (auth) {
+		return <Navigate to={'/cabinet'} replace />;
+	}
+
 	return (
 		<div className="min-h-screen">
 			<HeaderAuth />
-			<form className="pb-8 mx-auto w-fit" onSubmit={handleSubmit(onSubmit)}>
-				<h1 className="text-4xl text-center ">Створити аккаунт</h1>
-				<div className="grid items-center grid-cols-2 gap-4 px-6 mt-2 text-xl select-none">
-					<div className="p-2.5">
+			<form className="px-4 pb-8 mx-auto w-fit" onSubmit={handleSubmit(onSubmit)}>
+				<h1 className="text-3xl text-center sm:text-4xl ">Створити аккаунт</h1>
+				<div className="grid items-center grid-cols-1 gap-2 px-1 my-2 text-lg select-none sm:grid-cols-2 sm:text-xl sm:gap-4 sm:px-6">
+					<div className="px-2 sm:px-2.5">
 						<input
 							type="radio"
 							id="accountChoice1"
@@ -60,7 +71,7 @@ const Register = () => {
 							Користувач
 						</label>
 					</div>
-					<div className="p-2.5">
+					<div className="px-2 sm:px-2.5">
 						<input
 							type="radio"
 							id="accountChoice2"
@@ -74,6 +85,13 @@ const Register = () => {
 					</div>
 				</div>
 				<div className="p-6 space-y-4 border border-black shadow-lg shadow-gray-400/80 rounded-xl 2xl:space-y-6 sm:p-8">
+					{authError ? (
+						<p className="text-center p-2.5 text-red-500 border text-lg border-red-500 bg-red-300 rounded-lg">
+							{authError}
+						</p>
+					) : (
+						<></>
+					)}
 					<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 						<div className="">
 							<label htmlFor="first_name" className="block mb-2 font-medium text-black">
@@ -146,7 +164,7 @@ const Register = () => {
 									className="m-2 text-black border-white ring-offset-2 checked:bg-none ring-black ring-1 focus:ring-1 focus:ring-offset-4"
 								/>
 								<label htmlFor="genderMale" className="text-black align-middle">
-									Чулувік
+									Чоловіча
 								</label>
 							</li>
 							<li className="w-full p-2.5">
@@ -158,7 +176,7 @@ const Register = () => {
 									className="m-2 text-black border-white ring-offset-2 checked:bg-none ring-black ring-1 focus:ring-1 focus:ring-offset-4"
 								/>
 								<label htmlFor="genderFemale" className="text-black align-middle">
-									Жінка
+									Жіноча
 								</label>
 							</li>
 						</ul>
@@ -185,9 +203,9 @@ const Register = () => {
 					</button>
 					<div className="space-x-2 text-sm font-light text-gray-500">
 						<span>Вже маєте аккаунт?</span>
-						<a href="/sign-in" className="font-medium text-black hover:underline">
+						<Link to="/sign-in" className="font-medium text-black hover:underline">
 							Увійти в аккаунт
-						</a>
+						</Link>
 					</div>
 				</div>
 			</form>

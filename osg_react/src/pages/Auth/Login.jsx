@@ -1,12 +1,22 @@
-import React from 'react';
+import { useState } from 'react';
+import { Link, Navigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import HeaderAuth from '../../components/HeaderAuth';
 
-const Register = () => {
+import HeaderAuth from '../../components/HeaderAuth';
+import useAuth from '../../hooks/useAuth';
+
+const Login = () => {
+	const location = useLocation();
+	const from = location.state?.from?.pathname || '/cabinet';
+	// const from = '/cabinet';
+
+	const { auth, logInUser } = useAuth();
+	const [authError, setAuthError] = useState(null);
+	const [loading, setLoading] = useState(false);
 	const {
 		register,
 		handleSubmit,
-		// setError,
+		setError,
 		// eslint-disable-next-line
 		formState: { errors, isValid },
 	} = useForm({
@@ -15,37 +25,43 @@ const Register = () => {
 			password: '',
 		},
 		mode: 'onChange',
-		// shouldUseNativeValidation: true,
 	});
 
 	const onSubmit = async (values) => {
-		console.log(values);
-		// const data = await fetchRegister(values);
-
-		// if (!data.payload) {
-		// 	return alert('Registration failed');
-		// }
-
-		// if ('token' in data.payload) {
-		// 	localStorage.setItem('token', data.payload.token);
-		// }
+		setLoading(true);
+		const error = await logInUser(values);
+		if (error) {
+			if (!error.response) {
+				setAuthError('Сервер не відповідає');
+			} else {
+				setAuthError('Невірні вхідні дані');
+			}
+			setLoading(false);
+			setError('email', {}, { shouldFocus: true });
+			setError('password');
+			console.error(error);
+		}
 	};
 
-	// const handleSubmit = (event) => {
-	// 	console.log(event);
-	// 	event.preventDefault();
-	// };
-	// if (isAuth) {
-	// 	return <Navigate to={'/'} />;
-	// }
+	if (auth) {
+		return <Navigate to={from} replace />;
+	}
+
 	return (
 		<div className="min-h-screen">
 			<HeaderAuth />
-			<form className="pb-8 mx-auto w-fit" onSubmit={handleSubmit(onSubmit)}>
+			<form className="px-4 pb-8 mx-auto w-fit" onSubmit={handleSubmit(onSubmit)}>
 				<div className="flex justify-center">
-					<h1 className="mb-16 mr-2.5 text-4xl text-center">Вхід</h1>
+					<h1 className="mb-4 sm:mb-16 mr-2.5 text-3xl text-center sm:text-4xl">Вхід</h1>
 				</div>
-				<div className="px-10 py-12 space-y-4 border border-black shadow-lg max-md:py-8 max-md:px-6 w-96 shadow-gray-400/80 rounded-xl 2xl:space-y-6">
+				<div className="p-6 space-y-4 border border-black shadow-lg shadow-gray-400/80 rounded-xl 2xl:space-y-6 sm:p-8">
+					{authError ? (
+						<p className="text-center p-2.5 text-red-500 border text-lg border-red-500 bg-red-300 rounded-lg">
+							{authError}
+						</p>
+					) : (
+						<></>
+					)}
 					<div>
 						<label htmlFor="email" className="block mb-2 font-medium text-black">
 							Електронна пошта
@@ -78,17 +94,17 @@ const Register = () => {
 					<button
 						type="submit"
 						className="w-full shadow-md shadow-gray-400 text-white bg-black hover:bg-slate-700 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-full px-5 py-2.5 text-center">
-						Увійти
+						{loading ? 'Вхід...' : 'Увійти'}
 					</button>
-					<div className="space-x-2 text-sm font-light text-gray-500">
-						<a href="/register" className="float-left font-medium text-black hover:underline">
+					<div className="flex flex-col-reverse items-center text-base font-light text-gray-500 sm:space-x-2 sm:flex-row">
+						<Link to="/register" className="float-left font-medium text-black hover:underline">
 							Зареєструватись
-						</a>
-						<a
-							href="/password-recovery"
-							className="float-right text-gray-700 font-extralight hover:underline">
+						</Link>
+						<Link
+							to="/password-recovery"
+							className="float-right text-gray-600 font-extralight hover:underline">
 							Забули пароль?
-						</a>
+						</Link>
 					</div>
 				</div>
 			</form>
@@ -96,4 +112,4 @@ const Register = () => {
 	);
 };
 
-export default Register;
+export default Login;
