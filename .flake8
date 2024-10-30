@@ -11,6 +11,9 @@ exclude =
     .env
     Dockerfile
     docker-compose.yml
+<<<<<<< HEAD
     .dockerignore
+=======
+>>>>>>> 39407db (Update .flake8)
 max-complexity = 8
 max-line-length = 120
