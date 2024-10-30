@@ -27,17 +27,16 @@ export const cities = [
 	'Чернігів',
 ];
 export const specs = [
+	'Бодібілдинг',
+	'Пауерліфтинг',
+	'Армрестлінг',
+	'Богатирство',
+	'Армліфтинг',
+	'Гімнастика',
 	'Фітнес',
-	'Персональний',
-	'Бокс',
-	'Плавання ',
-	'Йога ',
-	'Стрільба з лука ',
-	'Кросфіт ',
-	'Атлетика ',
 ];
 
-export const type_training = ['онлайн', 'офлайн', 'змішаний'];
+export const type_training = ['онлайн', 'офлайн', '', 'змішаний'];
 
 export function selectYearDeclension(year) {
 	const lastDigit = year % 10;
