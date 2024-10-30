@@ -130,7 +130,11 @@ class MyTokenObtainPairView(TokenObtainPairView):
 class AvatarUploadView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
+<<<<<<< HEAD
     @swagger_auto_schema(method='put', request_body=AvatarSerializer, manual_parameters=[get_header_params()],
+=======
+    @swagger_auto_schema(method='put', request_body=AvatarSerializer,
+>>>>>>> 00b8695 (try avatar upload)
                          operation_description='To update user avatar.')
     @api_view(['PUT'])
     @permission_classes([IsAuthenticated])
