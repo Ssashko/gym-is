@@ -54,7 +54,6 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['role'] = user.role
         return token
 
-
 class AvatarSerializer(serializers.ModelSerializer):
     class Meta:
         model = MyUser

@@ -5,16 +5,20 @@ from rest_framework import status
 from .serializers import (MyUserSerializer, ConfirmMailSerializer,
                           MyUserSerializerToUpdate, MyUserSerializerToView,
                           MyTokenObtainPairSerializer,AvatarSerializer)
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from chat.serializers import ChatSerializer
 from .permissions import VerifiedOnly
 from drf_yasg.utils import swagger_auto_schema
+
 from .utils import get_header_params, get_query_params, get_form_params, clear_cache_by_key
+
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_headers
 from rest_framework_simplejwt.views import TokenObtainPairView
+
 from rest_framework.parsers import MultiPartParser, FormParser
 
 class UserAPI(APIView):
