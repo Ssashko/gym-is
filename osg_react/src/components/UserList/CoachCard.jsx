@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-const CoachCard = ({ id, avatar, first_name, last_name }) => {
+const CoachCard = ({ id, avatar, first_name, last_name, id_coach }) => {
 	return (
 		<div className="flex flex-col px-2 py-4 space-y-4 text-center transition-transform border border-black sm:px-8 rounded-3xl card hover:scale-105">
 			<div className="">
@@ -17,7 +17,7 @@ const CoachCard = ({ id, avatar, first_name, last_name }) => {
 				Чат
 			</Link>
 			<Link
-				to={'/coaches/' + id}
+				to={'/coaches/' + id_coach}
 				className="inline-block select-none text-center w-full min-w-[8rem] hover:bg-neutral-600 px-2 py-2 rounded-full text-lg leading-none font-normal bg-black text-white border border-black">
 				Перейти у профіль
 			</Link>

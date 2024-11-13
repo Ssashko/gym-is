@@ -19,6 +19,8 @@ const Coaches = () => {
 			const newApplications = !my_application.is_accepted
 				? []
 				: [{ ...my_application, coach: coach }];
+			
+			console.log(newApplications);
 			setMyApplications({ data: newApplications, loading: false, error: false });
 			// setMyApplications({ data: tunedApplications, loading: false, error: false });
 		} catch (err) {
@@ -39,7 +41,7 @@ const Coaches = () => {
 						{myApplications.data?.length > 0 ? (
 							<div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] justify-items-stretch gap-8">
 								{myApplications.data?.map((app, index) => (
-									<CoachCard key={app.id} {...app.coach} />
+									<CoachCard id_coach={app.id} key={app.id} {...app.coach} />
 								))}
 							</div>
 						) : (
